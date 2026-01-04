@@ -238,29 +238,64 @@ def main():
     
     # Main content area
     if run_button:
+        # try:
+            # with st.spinner("Loading data..."):
+            #     # Load data
+            #     analyzer = IndexPerformanceAnalyzer()
+            #     raw_data = analyzer.download_all_data(
+            #         index_file,
+            #         index_symbol,
+            #         str(data_start_date),
+            #         str(data_end_date)
+            #     )
+                
+            #     # Format data for bt
+            #     prices_dict = {}
+            #     for t in raw_data["constituents"]:
+            #         prices_dict[t] = raw_data["constituents"][t].xs(t, axis=1, level='Ticker')["Close"]
+            #     prices_dict[raw_data["index_info"]["index"]] = raw_data["index"].xs(
+            #         raw_data["index_info"]["index"],
+            #         axis=1,
+            #         level='Ticker'
+            #     )["Close"]
+            #     prices = pd.DataFrame(prices_dict)
+                
+            #     st.success("Data loaded successfully!")
+        progress_bar = st.progress(0)
+
         try:
-            with st.spinner("Loading data..."):
-                # Load data
-                analyzer = IndexPerformanceAnalyzer()
-                raw_data = analyzer.download_all_data(
-                    index_file,
-                    index_symbol,
-                    str(data_start_date),
-                    str(data_end_date)
-                )
+            # Load data
+            progress_bar.progress(0)
+            analyzer = IndexPerformanceAnalyzer()
+            
+            progress_bar.progress(0)
+            raw_data = analyzer.download_all_data(
+                index_file,
+                index_symbol,
+                str(data_start_date),
+                str(data_end_date),
+                progress_bar=progress_bar
+            )
+            
+            # Format data for bt
+            prices_dict = {}
+            for t in raw_data["constituents"]:
+                prices_dict[t] = raw_data["constituents"][t].xs(t, axis=1, level='Ticker')["Close"]
+            
+            prices_dict[raw_data["index_info"]["index"]] = raw_data["index"].xs(
+                raw_data["index_info"]["index"],
+                axis=1,
+                level='Ticker'
+            )["Close"]
+            prices = pd.DataFrame(prices_dict)
+            
+            st.success("Data loaded successfully!")
+            
+            import time
+            time.sleep(0.5)
+            progress_bar.empty()
                 
-                # Format data for bt
-                prices_dict = {}
-                for t in raw_data["constituents"]:
-                    prices_dict[t] = raw_data["constituents"][t].xs(t, axis=1, level='Ticker')["Close"]
-                prices_dict[raw_data["index_info"]["index"]] = raw_data["index"].xs(
-                    raw_data["index_info"]["index"],
-                    axis=1,
-                    level='Ticker'
-                )["Close"]
-                prices = pd.DataFrame(prices_dict)
-                
-                st.success("Data loaded successfully!")
+
             
             with st.spinner("Running backtest..."):
                 # Run backtest

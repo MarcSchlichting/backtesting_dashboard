@@ -72,7 +72,7 @@ class IndexPerformanceAnalyzer:
         # return symbols
         return pd.read_csv(filename, index_col='symbol').T.to_dict()
     
-    def download_all_data(self, symbols_file, index_symbol, start_date, end_date, force_download=False):
+    def download_all_data(self, symbols_file, index_symbol, start_date, end_date, progress_bar, force_download=False):
         """
         Download all data upfront and cache it
         
@@ -138,6 +138,7 @@ class IndexPerformanceAnalyzer:
                 print(f"\nError downloading {symbol}: {str(e)}")
                 failed_symbols.append(symbol)
                 continue
+            progress_bar.progress((i+1)/len(symbols))
         
         print(f"\n\nDownload complete!")
         print(f"Successfully downloaded: {len(constituents_data)} stocks")
